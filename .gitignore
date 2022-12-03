@@ -3,4 +3,6 @@
 /dist
 .idea*
 static-check.log
+cscope.files
+cscope.out
 .vscode/**

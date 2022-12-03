@@ -127,6 +127,8 @@ func isSubnetAlreadyPresent(nws []*net.IPNet, nw *net.IPNet) bool {
 	return false
 }
 
+// zhou: parse "subnet.env", which created by flanneld.
+
 func loadFlannelSubnetEnv(fn string) (*subnetEnv, error) {
 	f, err := os.Open(fn)
 	if err != nil {
@@ -225,9 +227,14 @@ func consumeScratchNetConf(containerID, dataDir string) (func(error), []byte, er
 	return cleanup, netConfBytes, err
 }
 
+// zhou:
+
 func delegateAdd(cid, dataDir string, netconf map[string]interface{}) error {
 	netconfBytes, err := json.Marshal(netconf)
 	fmt.Fprintf(os.Stderr, "delegateAdd: netconf sent to delegate plugin:\n")
+
+	// zhou: let CRI parse the output, and trigger following bridge and ipam CNI plugin?
+
 	os.Stderr.Write(netconfBytes)
 	if err != nil {
 		return fmt.Errorf("error serializing delegate netconf: %v", err)
@@ -255,6 +262,8 @@ func isString(i interface{}) bool {
 	_, ok := i.(string)
 	return ok
 }
+
+// zhou: CRI will trigger this handler
 
 func cmdAdd(args *skel.CmdArgs) error {
 	n, err := loadFlannelNetConf(args.StdinData)

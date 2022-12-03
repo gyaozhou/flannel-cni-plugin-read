@@ -29,6 +29,8 @@ import (
 	"github.com/containernetworking/cni/pkg/types"
 )
 
+// zhou:
+
 // Return IPAM section for Delegate using input IPAM if present and replacing
 // or complementing as needed.
 func getDelegateIPAM(n *NetConf, fenv *subnetEnv) (map[string]interface{}, error) {
@@ -36,6 +38,8 @@ func getDelegateIPAM(n *NetConf, fenv *subnetEnv) (map[string]interface{}, error
 	if ipam == nil {
 		ipam = map[string]interface{}{}
 	}
+
+	// zhou: if not specified, using host-local as IPAM.
 
 	if !hasKey(ipam, "type") {
 		ipam["type"] = "host-local"
@@ -81,8 +85,12 @@ func getDelegateIPAM(n *NetConf, fenv *subnetEnv) (map[string]interface{}, error
 	return ipam, nil
 }
 
+// zhou:
+
 func doCmdAdd(args *skel.CmdArgs, n *NetConf, fenv *subnetEnv) error {
 	n.Delegate["name"] = n.Name
+
+	// zhou: if not specified in cni-conf.json, default type is "bridge"
 
 	if !hasKey(n.Delegate, "type") {
 		n.Delegate["type"] = "bridge"
@@ -94,10 +102,14 @@ func doCmdAdd(args *skel.CmdArgs, n *NetConf, fenv *subnetEnv) error {
 		n.Delegate["ipMasq"] = ipmasq
 	}
 
+	// zhou: if not specified in cni-conf.json, which comes from subnet.env
+
 	if !hasKey(n.Delegate, "mtu") {
 		mtu := fenv.mtu
 		n.Delegate["mtu"] = mtu
 	}
+
+	// zhou: bridge mode need a gateway
 
 	if n.Delegate["type"].(string) == "bridge" {
 		if !hasKey(n.Delegate, "isGateway") {
